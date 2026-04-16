@@ -2,6 +2,7 @@ const {
   createCard,
   getCardsByList,
   updateCard,
+  deleteCard,
 } = require("../models/cardModel");
 
 const createCardHandler = async (req, res) => {
@@ -22,6 +23,23 @@ const getCardsHandler = async (req, res) => {
     res.json(cards);
   } catch (err) {
     res.status(500).send("Error fetching cards");
+  }
+};
+
+const deleteCardHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await deleteCard(id);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Card not found" });
+    }
+
+    res.json({ message: "Card deleted" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error deleting card");
   }
 };
 
@@ -53,4 +71,5 @@ module.exports = {
   createCardHandler,
   getCardsHandler,
   updateCardHandler,
+  deleteCardHandler,
 };

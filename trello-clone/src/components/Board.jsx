@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import List from "./List";
 import AddList from "./AddList";
@@ -42,6 +42,30 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       setBoards(updatedBoards);
     } catch (err) {
       console.error("Error updating lists", err);
+    }
+  };
+  useEffect(() => {
+    fetchLists();
+  }, [activeBoardId]);
+
+  const fetchLists = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/lists/${activeBoardId}`);
+
+      const listsWithCards = res.data.map((list) => ({
+        ...list,
+        cards: [],
+      }));
+
+      const updatedBoards = boards.map((board) =>
+        board.id === activeBoardId
+          ? { ...board, lists: listsWithCards }
+          : board,
+      );
+
+      setBoards(updatedBoards);
+    } catch (err) {
+      console.error("Error fetching lists", err);
     }
   };
 
@@ -136,8 +160,8 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       });
 
       const newList = {
-        ...res.data, 
-        cards: [], 
+        ...res.data,
+        cards: [],
       };
 
       updateLists([...lists, newList]); // ✅ same flow
@@ -145,32 +169,32 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       console.error("Error creating list", err);
     }
   };
-const updateList = async (listId, newTitle) => {
-  try {
-    await axios.put(`${BASE_URL}/lists/${listId}`, {
-      title: newTitle,
-    });
+  const updateList = async (listId, newTitle) => {
+    try {
+      await axios.put(`${BASE_URL}/lists/${listId}`, {
+        title: newTitle,
+      });
 
-    const newLists = lists.map((list) =>
-      list.id === listId ? { ...list, title: newTitle } : list
-    );
+      const newLists = lists.map((list) =>
+        list.id === listId ? { ...list, title: newTitle } : list,
+      );
 
-    updateLists(newLists);
-  } catch (err) {
-    console.error("Error updating list", err);
-  }
-};
+      updateLists(newLists);
+    } catch (err) {
+      console.error("Error updating list", err);
+    }
+  };
 
-const deleteList = async (listId) => {
-  try {
-    await axios.delete(`${BASE_URL}/lists/${listId}`);
+  const deleteList = async (listId) => {
+    try {
+      await axios.delete(`${BASE_URL}/lists/${listId}`);
 
-    const newLists = lists.filter((list) => list.id !== listId);
-    updateLists(newLists);
-  } catch (err) {
-    console.error("Error deleting list", err);
-  }
-};
+      const newLists = lists.filter((list) => list.id !== listId);
+      updateLists(newLists);
+    } catch (err) {
+      console.error("Error deleting list", err);
+    }
+  };
 
   const handleDragStart = (event) => {
     const { active } = event;

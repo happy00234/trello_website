@@ -29,9 +29,17 @@ const updateCard = async (id, title, description, due_date, label) => {
   );
   return result;
 };
+const deleteCard = async (id) => {
+  const result = await pool.query(
+    "DELETE FROM cards WHERE id = $1 RETURNING *",
+    [id]
+  );
+  return result;
+};
 
 module.exports = {
   createCard,
   getCardsByList,
   updateCard,
+  deleteCard,
 };

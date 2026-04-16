@@ -30,7 +30,7 @@ const List = ({ list, addCard, updateCard, updateList, deleteList, setSelectedCa
     try {
       const res = await axios.post(`${BASE_URL}/cards`, {
         title,
-        list_id: parseInt(list.id.replace("list-", ""))
+        list_id: list.id,
       });
 
       addCard(list.id, res.data);
