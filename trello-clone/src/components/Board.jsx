@@ -45,6 +45,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     }
   };
   useEffect(() => {
+    if (!activeBoardId) return; // 🔥 IMPORTANT FIX
     fetchLists();
   }, [activeBoardId]);
 
@@ -52,11 +53,31 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     try {
       const res = await axios.get(`${BASE_URL}/lists/${activeBoardId}`);
 
-      const listsWithCards = res.data.map((list) => ({
-        ...list,
-        cards: [],
-      }));
+      const listsFromDB = res.data;
 
+      const listsWithCards = await Promise.all(
+        listsFromDB.map(async (list) => {
+          try {
+            const cardRes = await axios.get(`${BASE_URL}/cards/${list.id}`);
+
+            return {
+              ...list,
+              cards: (cardRes.data || []).map((card) => ({
+                ...card,
+                dueDate: card.due_date, // 🔥 mapping
+              })),
+            };
+          } catch (err) {
+            console.error("Error fetching cards for list", list.id, err);
+            return {
+              ...list,
+              cards: [],
+            };
+          }
+        }),
+      );
+
+      // 👇 state update (same as before)
       const updatedBoards = boards.map((board) =>
         board.id === activeBoardId
           ? { ...board, lists: listsWithCards }
@@ -104,23 +125,45 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     updateLists(newLists);
   };
 
-  const updateCard = (cardId, updatedFields) => {
-    const newLists = lists.map((list) => ({
-      ...list,
-      cards: list.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updatedFields } : card,
-      ),
-    }));
-    updateLists(newLists);
+  const updateCard = async (cardId, updatedFields) => {
+    try {
+      // 🔥 1. UI UPDATE FIRST (instant feel)
+      const newLists = lists.map((list) => ({
+        ...list,
+        cards: list.cards.map((card) =>
+          card.id === cardId ? { ...card, ...updatedFields } : card,
+        ),
+      }));
+
+      const updatedBoards = boards.map((board) =>
+        board.id === activeBoardId ? { ...board, lists: newLists } : board,
+      );
+
+      setBoards(updatedBoards);
+
+      // 🔥 2. BACKEND UPDATE
+      await axios.put(`${BASE_URL}/cards/${cardId}`, {
+        ...updatedFields,
+      });
+    } catch (err) {
+      console.error("Error updating card", err);
+    }
   };
 
-  const deleteCard = (cardId) => {
-    const newLists = lists.map((list) => ({
-      ...list,
-      cards: list.cards.filter((card) => card.id !== cardId),
-    }));
-    updateLists(newLists);
-    setSelectedCard(null);
+  const deleteCard = async (cardId) => {
+    try {
+      await axios.delete(`${BASE_URL}/cards/${cardId}`);
+
+      const newLists = lists.map((list) => ({
+        ...list,
+        cards: list.cards.filter((card) => card.id !== cardId),
+      }));
+
+      updateLists(newLists);
+      setSelectedCard(null);
+    } catch (err) {
+      console.error("Error deleting card", err);
+    }
   };
 
   const toggleMember = (cardId, member) => {

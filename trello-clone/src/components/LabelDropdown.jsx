@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from "react"; // 👈 ADD
+
 const LabelDropdown = ({
   card,
   updateCard,
@@ -12,30 +14,59 @@ const LabelDropdown = ({
     { name: "None", color: null },
   ];
 
+  const [tempLabel, setTempLabel] = useState(card.label);
+
+  // 🔥 ADD THIS
+  const dropdownRef = useRef(null);
+
+  const handleSelect = (color) => {
+    setTempLabel(color);
+    setLocalCard({ ...card, label: color });
+  };
+
+  const handleClose = () => {
+    if (tempLabel !== card.label) {
+      updateCard(card.id, { label: tempLabel });
+    }
+    closeDropdown();
+  };
+
+  // 🔥 ADD THIS
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target)
+      ) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [tempLabel, card.label]);
+
   return (
     <div
+      ref={dropdownRef} // 👈 ADD THIS
       className="absolute top-14 left-0 bg-[#334155] p-3 rounded w-48 z-50"
-      onClick={(e) => e.stopPropagation()} // 🔥 IMPORTANT
+      onClick={(e) => e.stopPropagation()}
     >
-      {/* HEADER */}
       <div className="flex justify-between mb-2">
         <span className="text-xs">Labels</span>
-        <button onClick={closeDropdown}>✕</button>
+        <button onClick={handleClose}>✕</button>
       </div>
 
-      {/* LABEL LIST */}
       {labels.map((item) => {
-        const isSelected = card.label === item.color;
+        const isSelected = tempLabel === item.color;
 
         return (
           <div
             key={item.name}
-            onClick={() => {
-              updateCard(card.id, { label: item.color });
-
-              // 🔥 LOCAL UI UPDATE (IMPORTANT)
-              setLocalCard({ ...card, label: item.color });
-            }}
+            onClick={() => handleSelect(item.color)}
             className={`flex justify-between p-2 rounded cursor-pointer ${
               isSelected ? "bg-[#475569]" : "hover:bg-[#475569]"
             }`}

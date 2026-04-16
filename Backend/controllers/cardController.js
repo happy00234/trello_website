@@ -48,13 +48,7 @@ const updateCardHandler = async (req, res) => {
     const { id } = req.params;
     const { title, description, due_date, label } = req.body;
 
-    const result = await updateCard(
-      id,
-      title,
-      description,
-      due_date,
-      label
-    );
+    const result = await updateCard(id, req.body);
 
     if (result.rowCount === 0) {
       return res.status(404).json({ message: "Card not found" });

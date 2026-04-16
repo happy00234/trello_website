@@ -16,17 +16,20 @@ const getCardsByList = async (listId) => {
   return result.rows;
 };
 
-const updateCard = async (id, title, description, due_date, label) => {
+const updateCard = async (id, fields) => {
+  const { title, description, due_date, label } = fields;
+
   const result = await pool.query(
-    `UPDATE cards 
-     SET title = $1,
-         description = $2,
-         due_date = $3,
-         label = $4
+    `UPDATE cards SET
+      title = COALESCE($1, title),
+      description = COALESCE($2, description),
+      due_date = COALESCE($3, due_date),
+      label = COALESCE($4, label)
      WHERE id = $5
      RETURNING *`,
     [title, description, due_date, label, id]
   );
+
   return result;
 };
 const deleteCard = async (id) => {
