@@ -1,53 +1,59 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Board from "./components/Board";
 import Header from "./components/Header";
 
 function App() {
   const [search, setSearch] = useState("");
 
-  // 🔥 UPDATED STRUCTURE
-  const [boards, setBoards] = useState([
-    {
-      id: "board-1",
-      title: "My Trello Board",
-      lists: [
-        {
-          id: "list-1",
-          title: "Todo",
-          cards: [
-            {
-              id: "card-1",
-              title: "Build Project",
-              members: [],
-              description: "",
-              label: null,
-              dueDate: null,
-              checklist: [],
-            },
-          ],
-        },
-      ],
-    },
-  ]);
+  
+  const [boards, setBoards] = useState([]);
 
-  const [activeBoardId, setActiveBoardId] = useState("board-1");
+  const [activeBoardId, setActiveBoardId] = useState(null);
 
-  const addBoard = (title) => {
+  const [filters, setFilters] = useState({
+    label: null,
+    member: null,
+    due: null,
+  });
+
+  
+  const BASE_URL = "https://trello-backend-rx4s.onrender.com";
+
+  
+  useEffect(() => {
+    fetchBoards();
+  }, []);
+
+  const fetchBoards = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/boards`);
+      setBoards(res.data);
+
+      
+      if (res.data.length > 0) {
+        setActiveBoardId(res.data[0].id);
+      }
+    } catch (err) {
+      console.error("Error fetching boards", err);
+    }
+  };
+
+  
+  const addBoard = async (title) => {
     if (!title.trim()) return;
 
-    const newBoard = {
-      id: "board-" + Date.now(),
-      title,
-      lists: [], // 🔥 IMPORTANT
-    };
+    try {
+      const res = await axios.post(`${BASE_URL}/boards`, {
+        title,
+      });
 
-    setBoards([...boards, newBoard]);
+      setBoards([res.data, ...boards]);
+      setActiveBoardId(res.data.id);
+    } catch (err) {
+      console.error("Error creating board", err);
+    }
   };
-  const [filters, setFilters] = useState({
-  label: null,
-  member: null,
-  due: null, // "overdue" | "upcoming"
-});
 
   return (
     <div className="h-screen bg-gradient-to-br from-purple-700 via-purple-800 to-gray-900 p-4">
@@ -57,7 +63,7 @@ function App() {
         setBoards={setBoards}
         activeBoardId={activeBoardId}
         setActiveBoardId={setActiveBoardId}
-        addBoard={addBoard} 
+        addBoard={addBoard}
         filters={filters}
         setFilters={setFilters}
       />

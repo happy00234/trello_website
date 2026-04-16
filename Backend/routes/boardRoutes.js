@@ -10,5 +10,6 @@ const {
 router.post("/", createBoardHandler);
 router.get("/", getBoardsHandler);
 router.delete("/:id", deleteBoardHandler);
+router.put("/:id", updateBoard);
 
 module.exports = router;

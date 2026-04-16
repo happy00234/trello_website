@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import List from "./List";
 import AddList from "./AddList";
 import CardModal from "./CardModal";
@@ -15,20 +16,33 @@ import {
 import { arrayMove } from "@dnd-kit/sortable";
 
 const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
+  const BASE_URL = "https://trello-backend-rx4s.onrender.com";
+
   const activeBoard = boards.find((b) => b.id === activeBoardId);
   const lists = activeBoard?.lists || [];
+
   const [activeCard, setActiveCard] = useState(null);
   const [selectedCard, setSelectedCard] = useState(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
 
-  const updateLists = (newLists) => {
-    const updatedBoards = boards.map((board) =>
-      board.id === activeBoardId ? { ...board, lists: newLists } : board,
-    );
-    setBoards(updatedBoards);
+  // 🔥 UPDATED
+  const updateLists = async (newLists) => {
+    try {
+      await axios.put(`${BASE_URL}/boards/${activeBoardId}`, {
+        lists: newLists,
+      });
+
+      const updatedBoards = boards.map((board) =>
+        board.id === activeBoardId ? { ...board, lists: newLists } : board
+      );
+
+      setBoards(updatedBoards);
+    } catch (err) {
+      console.error("Error updating lists", err);
+    }
   };
 
   const findCard = (id) => {
@@ -70,7 +84,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     const newLists = lists.map((list) => ({
       ...list,
       cards: list.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updatedFields } : card,
+        card.id === cardId ? { ...card, ...updatedFields } : card
       ),
     }));
     updateLists(newLists);
@@ -112,7 +126,6 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     setSelectedCard(updatedCard);
   };
 
-  // ================= LIST =================
   const addList = (title) => {
     if (!title.trim()) return;
 
@@ -127,7 +140,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
 
   const updateList = (listId, newTitle) => {
     updateLists(
-      lists.map((l) => (l.id === listId ? { ...l, title: newTitle } : l)),
+      lists.map((l) => (l.id === listId ? { ...l, title: newTitle } : l))
     );
   };
 
@@ -135,7 +148,6 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     updateLists(lists.filter((l) => l.id !== listId));
   };
 
-  // ================= DRAG =================
   const handleDragStart = (event) => {
     const { active } = event;
     lists.forEach((list) => {
@@ -173,7 +185,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       newLists[source.listIndex].cards = arrayMove(
         newLists[source.listIndex].cards,
         source.cardIndex,
-        destination.cardIndex,
+        destination.cardIndex
       );
     } else {
       const movedCard = newLists[source.listIndex].cards[source.cardIndex];
@@ -182,13 +194,13 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       newLists[destination.listIndex].cards.splice(
         destination.cardIndex,
         0,
-        movedCard,
+        movedCard
       );
     }
 
     updateLists(newLists);
   };
-  
+
   const addChecklistItem = (cardId, text) => {
     const newLists = lists.map((list) => ({
       ...list,
@@ -198,20 +210,15 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
               ...card,
               checklist: [
                 ...(card.checklist || []),
-                {
-                  id: Date.now(),
-                  text,
-                  done: false,
-                },
+                { id: Date.now(), text, done: false },
               ],
             }
-          : card,
+          : card
       ),
     }));
 
     updateLists(newLists);
 
-    // 🔥 important: selectedCard sync
     const updatedCard = newLists
       .flatMap((l) => l.cards)
       .find((c) => c.id === cardId);
@@ -227,10 +234,12 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           ? {
               ...card,
               checklist: card.checklist.map((item) =>
-                item.id === itemId ? { ...item, done: !item.done } : item,
+                item.id === itemId
+                  ? { ...item, done: !item.done }
+                  : item
               ),
             }
-          : card,
+          : card
       ),
     }));
 
@@ -250,11 +259,9 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
     >
-      {/* BOARD */}
       <div className="h-[calc(100vh-100px)] overflow-x-auto overflow-y-hidden">
         <div className="flex gap-6 px-4 py-4 min-w-max">
           {lists.map((list) => {
-            // 🔥 FINAL FILTER LOGIC (YAHI ADD KIYA HAI)
             const filteredCards = list.cards.filter((card) => {
               const matchesSearch = card.title
                 .toLowerCase()
@@ -271,10 +278,14 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
                 !filters.due ||
                 (filters.due === "overdue"
                   ? card.dueDate && new Date(card.dueDate) < new Date()
-                  : card.dueDate && new Date(card.dueDate) >= new Date());
+                  : card.dueDate &&
+                    new Date(card.dueDate) >= new Date());
 
               return (
-                matchesSearch && matchesLabel && matchesMember && matchesDate
+                matchesSearch &&
+                matchesLabel &&
+                matchesMember &&
+                matchesDate
               );
             });
 
@@ -294,7 +305,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           <AddList addList={addList} />
         </div>
       </div>
-      {/* 🔥 CARD MODAL */}
+
       {selectedCard && (
         <CardModal
           card={selectedCard}
@@ -306,7 +317,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           toggleMember={toggleMember}
         />
       )}
-      {/* DRAG */}
+
       <DragOverlay>
         {activeCard && (
           <div className="bg-[#334155] p-2 rounded-md shadow-2xl rotate-3 scale-110 border border-white/20">
@@ -317,4 +328,5 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     </DndContext>
   );
 };
+
 export default Board;
