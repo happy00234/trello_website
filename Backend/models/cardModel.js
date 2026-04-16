@@ -3,7 +3,7 @@ const pool = require("../db");
 const createCard = async (title, list_id) => {
   const result = await pool.query(
     "INSERT INTO cards (title, list_id) VALUES ($1, $2) RETURNING *",
-    [title, list_id]
+    [title, list_id],
   );
   return result.rows[0];
 };
@@ -11,7 +11,7 @@ const createCard = async (title, list_id) => {
 const getCardsByList = async (listId) => {
   const result = await pool.query(
     "SELECT * FROM cards WHERE list_id = $1 ORDER BY id",
-    [listId]
+    [listId],
   );
   return result.rows;
 };
@@ -27,7 +27,7 @@ const updateCard = async (id, fields) => {
       label = COALESCE($4, label)
      WHERE id = $5
      RETURNING *`,
-    [title, description, due_date, label, id]
+    [title ?? null, description ?? null, due_date ?? null, label ?? null, id],
   );
 
   return result;
@@ -35,7 +35,7 @@ const updateCard = async (id, fields) => {
 const deleteCard = async (id) => {
   const result = await pool.query(
     "DELETE FROM cards WHERE id = $1 RETURNING *",
-    [id]
+    [id],
   );
   return result;
 };
