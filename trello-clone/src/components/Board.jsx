@@ -64,7 +64,8 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
               ...list,
               cards: (cardRes.data || []).map((card) => ({
                 ...card,
-                dueDate: card.due_date, // 🔥 mapping
+                dueDate: card.due_date, // ✅ already correct
+                label: card.label, // 🔥 THIS WAS MISSING
               })),
             };
           } catch (err) {
@@ -127,11 +128,22 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
 
   const updateCard = async (cardId, updatedFields) => {
     try {
-      // 🔥 1. UI UPDATE FIRST (instant feel)
+      // 🔥 1. BACKEND FIRST (safe)
+      const res = await axios.put(`${BASE_URL}/cards/${cardId}`, updatedFields);
+
+      const updatedCardFromDB = res.data;
+
+      // 🔥 2. UI UPDATE using DB response
       const newLists = lists.map((list) => ({
         ...list,
         cards: list.cards.map((card) =>
-          card.id === cardId ? { ...card, ...updatedFields } : card,
+          card.id === cardId
+            ? {
+                ...card,
+                ...updatedCardFromDB,
+                dueDate: updatedCardFromDB.due_date, // 🔥 mapping fix
+              }
+            : card,
         ),
       }));
 
@@ -140,11 +152,6 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       );
 
       setBoards(updatedBoards);
-
-      // 🔥 2. BACKEND UPDATE
-      await axios.put(`${BASE_URL}/cards/${cardId}`, {
-        ...updatedFields,
-      });
     } catch (err) {
       console.error("Error updating card", err);
     }

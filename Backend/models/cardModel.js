@@ -27,7 +27,13 @@ const updateCard = async (id, fields) => {
       label = COALESCE($4, label)
      WHERE id = $5
      RETURNING *`,
-    [title ?? null, description ?? null, due_date ?? null, label ?? null, id],
+    [
+      title ?? null,
+      description ?? null,
+      due_date ?? null,
+      label ?? null,
+      id,
+    ]
   );
 
   return result;
