@@ -71,10 +71,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
                 ...card,
                 dueDate: card.due_date, // ✅ already correct
                 label: card.label, // 🔥 THIS WAS MISSING
-                members:
-                  membersList.filter((m) =>
-                    (card.member_ids || []).includes(m.id),
-                  ) || [],
+                members: card.members || [],
               })),
             };
           } catch (err) {
@@ -227,14 +224,15 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
         board_id: activeBoardId,
       });
 
-      const newList = {
+      const newListFromDB = {
         ...res.data,
         cards: [],
       };
 
-      updateLists([...lists, newList]); // ✅ same flow
+      const newLists = [...lists, newListFromDB];
+      updateLists(newLists);
     } catch (err) {
-      console.error("Error creating list", err);
+      console.error("Error adding list", err);
     }
   };
   const updateList = async (listId, newTitle) => {
@@ -317,9 +315,12 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     updateLists(newLists);
 
     try {
-      const movedCardId = active.id;
+      const movedCardId = active.id; // card id
+      const listIndex = lists.findIndex((l) => l.id === over.id);
 
-      const newListId = parseInt(over.id.toString().replace("list-", ""));
+      if (listIndex === -1) return; // ❗ only allow list drop
+
+      const newListId = lists[listIndex].id;
 
       if (!movedCardId || !newListId) return;
 
