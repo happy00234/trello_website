@@ -1,8 +1,9 @@
-const pool = require("../db");
+
 const {
   createBoard,
   getBoards,
   deleteBoard,
+  updateBoard,
 } = require("../models/boardModel");
 
 const createBoardHandler = async (req, res) => {
@@ -39,26 +40,22 @@ const deleteBoardHandler = async (req, res) => {
     res.status(500).send("Error deleting board");
   }
 };
-const updateBoard = async (req, res) => {
+const updateBoardHandler = async (req, res) => {
   try {
     const { id } = req.params;
     const { lists } = req.body;
 
-    const result = await pool.query(
-      "UPDATE boards SET lists = $1 WHERE id = $2 RETURNING *",
-      [JSON.stringify(lists), id]
-    );
+    const updatedBoard = await updateBoard(id, lists);
 
-    res.json(result.rows[0]);
+    res.json(updatedBoard);
   } catch (err) {
     console.error(err);
     res.status(500).send("Error updating board");
   }
 };
-
 module.exports = {
   createBoardHandler,
   getBoardsHandler,
   deleteBoardHandler,
-  updateBoard,
+  updateBoardHandler,
 };

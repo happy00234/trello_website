@@ -5,11 +5,12 @@ const {
   createBoardHandler,
   getBoardsHandler,
   deleteBoardHandler,
+  updateBoardHandler
 } = require("../controllers/boardController");
 
 router.post("/", createBoardHandler);
 router.get("/", getBoardsHandler);
 router.delete("/:id", deleteBoardHandler);
-router.put("/:id", updateBoard);
+router.put("/:id", updateBoardHandler);
 
 module.exports = router;

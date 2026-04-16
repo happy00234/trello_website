@@ -7,6 +7,13 @@ const createBoard = async (title) => {
   );
   return result.rows[0];
 };
+const updateBoard = async (id, lists) => {
+  const result = await pool.query(
+    "UPDATE boards SET lists = $1 WHERE id = $2 RETURNING *",
+    [JSON.stringify(lists), id]
+  );
+  return result.rows[0];
+};
 
 const getBoards = async () => {
   const result = await pool.query(
@@ -27,4 +34,5 @@ module.exports = {
   createBoard,
   getBoards,
   deleteBoard,
+  updateBoard,
 };
