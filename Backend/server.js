@@ -7,7 +7,7 @@ const boardRoutes = require("./routes/boardRoutes");
 const listRoutes = require("./routes/listRoutes");
 const cardRoutes = require("./routes/cardRoutes");
 const checklistRoutes = require("./routes/checklistRoutes");
-const memberRoutes = require("./routes/memberRoutes");
+
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.use("/boards", boardRoutes);
 app.use("/lists", listRoutes);
 app.use("/cards", cardRoutes);
 app.use("/checklist", checklistRoutes);
-app.use("/members", memberRoutes);
+
 
 const PORT = 5000;
 app.listen(PORT, () => {

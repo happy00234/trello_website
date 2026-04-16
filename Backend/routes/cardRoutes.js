@@ -7,6 +7,7 @@ const {
   updateCardHandler,
   deleteCardHandler,
   updateMembersHandler,
+  moveCardHandler,
 } = require("../controllers/cardController");
 
 router.post("/", createCardHandler);
