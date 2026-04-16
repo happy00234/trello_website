@@ -274,7 +274,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     });
   };
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = async (event) => {
     const { active, over } = event;
     setActiveCard(null);
     if (!over) return;
@@ -316,6 +316,18 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     }
 
     updateLists(newLists);
+
+// 🔥 BACKEND SYNC (ONLY FOR DRAG)
+try {
+  const movedCard =
+    newLists[destination.listIndex].cards[destination.cardIndex];
+
+  await axios.put(`${BASE_URL}/cards/${movedCard.id}/move`, {
+    list_id: newLists[destination.listIndex].id,
+  });
+} catch (err) {
+  console.error("Error moving card", err);
+}
   };
 
   const addChecklistItem = async (cardId, text) => {

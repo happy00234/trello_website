@@ -4,6 +4,7 @@ const {
   updateCard,
   deleteCard,
   updateCardMembers,
+  moveCard,
 } = require("../models/cardModel");
 
 const createCardHandler = async (req, res) => {
@@ -72,6 +73,18 @@ const updateCardHandler = async (req, res) => {
     res.status(500).send("Error updating card");
   }
 };
+const moveCardHandler = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { list_id } = req.body;
+
+    const card = await moveCard(id, list_id);
+    res.json(card);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error moving card");
+  }
+};
 
 module.exports = {
   createCardHandler,
@@ -79,4 +92,5 @@ module.exports = {
   updateCardHandler,
   deleteCardHandler,
   updateMembersHandler,
+  moveCardHandler,
 };

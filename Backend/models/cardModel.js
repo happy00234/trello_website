@@ -68,6 +68,13 @@ const updateCardMembers = async (card_id, member_id) => {
     return { added: true };
   }
 };
+const moveCard = async (cardId, newListId) => {
+  const result = await pool.query(
+    "UPDATE cards SET list_id = $1 WHERE id = $2 RETURNING *",
+    [newListId, cardId]
+  );
+  return result.rows[0];
+};
 
 module.exports = {
   createCard,
@@ -75,4 +82,5 @@ module.exports = {
   updateCard,
   deleteCard,
   updateCardMembers,
+  moveCard,
 };

@@ -14,5 +14,6 @@ router.get("/:listId", getCardsHandler);
 router.put("/:id", updateCardHandler);
 router.delete("/:id", deleteCardHandler);
 router.post("/members", updateMembersHandler);
+router.put("/:id/move", moveCardHandler);
 
 module.exports = router;
