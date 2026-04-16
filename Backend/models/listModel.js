@@ -15,8 +15,25 @@ const getListsByBoard = async (boardId) => {
   );
   return result.rows;
 };
+const deleteList = async (id) => {
+  const result = await pool.query(
+    "DELETE FROM lists WHERE id = $1 RETURNING *",
+    [id]
+  );
+  return result;
+};
+
+const updateList = async (id, title) => {
+  const result = await pool.query(
+    "UPDATE lists SET title = $1 WHERE id = $2 RETURNING *",
+    [title, id]
+  );
+  return result.rows[0];
+};
 
 module.exports = {
   createList,
   getListsByBoard,
+  deleteList,
+  updateList,
 };

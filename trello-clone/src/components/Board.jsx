@@ -25,7 +25,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
   const [selectedCard, setSelectedCard] = useState(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
   // 🔥 UPDATED
@@ -36,7 +36,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       });
 
       const updatedBoards = boards.map((board) =>
-        board.id === activeBoardId ? { ...board, lists: newLists } : board
+        board.id === activeBoardId ? { ...board, lists: newLists } : board,
       );
 
       setBoards(updatedBoards);
@@ -55,7 +55,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     return null;
   };
 
-  const addCard = (listId, title) => {
+  const addCard = (listId, newCard) => {
     const newLists = lists.map((list) => {
       if (list.id === listId) {
         return {
@@ -63,8 +63,8 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           cards: [
             ...list.cards,
             {
-              id: "card-" + Date.now(),
-              title,
+              id: newCard.id,
+              title: newCard.title,
               members: [],
               description: "",
               label: null,
@@ -84,7 +84,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     const newLists = lists.map((list) => ({
       ...list,
       cards: list.cards.map((card) =>
-        card.id === cardId ? { ...card, ...updatedFields } : card
+        card.id === cardId ? { ...card, ...updatedFields } : card,
       ),
     }));
     updateLists(newLists);
@@ -126,27 +126,51 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     setSelectedCard(updatedCard);
   };
 
-  const addList = (title) => {
+  const addList = async (title) => {
     if (!title.trim()) return;
 
-    const newList = {
-      id: "list-" + Date.now(),
-      title,
-      cards: [],
-    };
+    try {
+      const res = await axios.post(`${BASE_URL}/lists`, {
+        title,
+        board_id: activeBoardId,
+      });
 
-    updateLists([...lists, newList]);
+      const newList = {
+        ...res.data, 
+        cards: [], 
+      };
+
+      updateLists([...lists, newList]); // ✅ same flow
+    } catch (err) {
+      console.error("Error creating list", err);
+    }
   };
+const updateList = async (listId, newTitle) => {
+  try {
+    await axios.put(`${BASE_URL}/lists/${listId}`, {
+      title: newTitle,
+    });
 
-  const updateList = (listId, newTitle) => {
-    updateLists(
-      lists.map((l) => (l.id === listId ? { ...l, title: newTitle } : l))
+    const newLists = lists.map((list) =>
+      list.id === listId ? { ...list, title: newTitle } : list
     );
-  };
 
-  const deleteList = (listId) => {
-    updateLists(lists.filter((l) => l.id !== listId));
-  };
+    updateLists(newLists);
+  } catch (err) {
+    console.error("Error updating list", err);
+  }
+};
+
+const deleteList = async (listId) => {
+  try {
+    await axios.delete(`${BASE_URL}/lists/${listId}`);
+
+    const newLists = lists.filter((list) => list.id !== listId);
+    updateLists(newLists);
+  } catch (err) {
+    console.error("Error deleting list", err);
+  }
+};
 
   const handleDragStart = (event) => {
     const { active } = event;
@@ -185,7 +209,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       newLists[source.listIndex].cards = arrayMove(
         newLists[source.listIndex].cards,
         source.cardIndex,
-        destination.cardIndex
+        destination.cardIndex,
       );
     } else {
       const movedCard = newLists[source.listIndex].cards[source.cardIndex];
@@ -194,7 +218,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
       newLists[destination.listIndex].cards.splice(
         destination.cardIndex,
         0,
-        movedCard
+        movedCard,
       );
     }
 
@@ -213,7 +237,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
                 { id: Date.now(), text, done: false },
               ],
             }
-          : card
+          : card,
       ),
     }));
 
@@ -234,12 +258,10 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           ? {
               ...card,
               checklist: card.checklist.map((item) =>
-                item.id === itemId
-                  ? { ...item, done: !item.done }
-                  : item
+                item.id === itemId ? { ...item, done: !item.done } : item,
               ),
             }
-          : card
+          : card,
       ),
     }));
 
@@ -278,14 +300,10 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
                 !filters.due ||
                 (filters.due === "overdue"
                   ? card.dueDate && new Date(card.dueDate) < new Date()
-                  : card.dueDate &&
-                    new Date(card.dueDate) >= new Date());
+                  : card.dueDate && new Date(card.dueDate) >= new Date());
 
               return (
-                matchesSearch &&
-                matchesLabel &&
-                matchesMember &&
-                matchesDate
+                matchesSearch && matchesLabel && matchesMember && matchesDate
               );
             });
 
