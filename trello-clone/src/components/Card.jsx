@@ -85,7 +85,7 @@ const Card = ({ card, onClick }) => {
                   : ""
               }
             >
-              📅 {card.dueDate}
+              📅 {card.dueDate.split("T")[0]}
             </span>
           )}
         </div>

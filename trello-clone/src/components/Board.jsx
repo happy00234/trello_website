@@ -13,7 +13,13 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 
+
 import { arrayMove } from "@dnd-kit/sortable";
+const membersList = [
+  { id: 1, name: "Happy", avatar: "H" },
+  { id: 2, name: "Mehak", avatar: "M" },
+  { id: 3, name: "Priyanshi", avatar: "P" },
+];
 
 const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
   const BASE_URL = "https://trello-backend-rx4s.onrender.com";
@@ -66,6 +72,10 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
                 ...card,
                 dueDate: card.due_date, // ✅ already correct
                 label: card.label, // 🔥 THIS WAS MISSING
+                members:
+                  membersList.filter((m) =>
+                    (card.member_ids || []).includes(m.id),
+                  ) || [],
               })),
             };
           } catch (err) {
@@ -114,7 +124,7 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
               members: [],
               description: "",
               label: null,
-              dueDate: null,
+              dueDate: newCard.due_date,
               checklist: [],
             },
           ],
@@ -173,31 +183,40 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     }
   };
 
-  const toggleMember = (cardId, member) => {
-    const newLists = lists.map((list) => ({
-      ...list,
-      cards: list.cards.map((card) => {
-        if (card.id === cardId) {
-          const exists = card.members?.find((m) => m.id === member.id);
+  const toggleMember = async (cardId, member) => {
+    try {
+      await axios.post(`${BASE_URL}/cards/members`, {
+        card_id: cardId,
+        member_id: member.id,
+      });
 
-          return {
-            ...card,
-            members: exists
-              ? card.members.filter((m) => m.id !== member.id)
-              : [...(card.members || []), member],
-          };
-        }
-        return card;
-      }),
-    }));
+      const newLists = lists.map((list) => ({
+        ...list,
+        cards: list.cards.map((card) => {
+          if (card.id === cardId) {
+            const exists = card.members?.find((m) => m.id === member.id);
 
-    updateLists(newLists);
+            return {
+              ...card,
+              members: exists
+                ? card.members.filter((m) => m.id !== member.id)
+                : [...(card.members || []), member],
+            };
+          }
+          return card;
+        }),
+      }));
 
-    const updatedCard = newLists
-      .flatMap((l) => l.cards)
-      .find((c) => c.id === cardId);
+      updateLists(newLists);
 
-    setSelectedCard(updatedCard);
+      const updatedCard = newLists
+        .flatMap((l) => l.cards)
+        .find((c) => c.id === cardId);
+
+      setSelectedCard(updatedCard);
+    } catch (err) {
+      console.error("Member update error", err);
+    }
   };
 
   const addList = async (title) => {
@@ -299,53 +318,69 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
     updateLists(newLists);
   };
 
-  const addChecklistItem = (cardId, text) => {
-    const newLists = lists.map((list) => ({
-      ...list,
-      cards: list.cards.map((card) =>
-        card.id === cardId
-          ? {
-              ...card,
-              checklist: [
-                ...(card.checklist || []),
-                { id: Date.now(), text, done: false },
-              ],
-            }
-          : card,
-      ),
-    }));
+  const addChecklistItem = async (cardId, text) => {
+    try {
+      const res = await axios.post(`${BASE_URL}/checklist`, {
+        card_id: cardId,
+        text,
+      });
 
-    updateLists(newLists);
+      const newItem = res.data;
 
-    const updatedCard = newLists
-      .flatMap((l) => l.cards)
-      .find((c) => c.id === cardId);
+      const newLists = lists.map((list) => ({
+        ...list,
+        cards: list.cards.map((card) =>
+          card.id === cardId
+            ? {
+                ...card,
+                checklist: [...(card.checklist || []), newItem],
+              }
+            : card,
+        ),
+      }));
 
-    setSelectedCard(updatedCard);
+      updateLists(newLists);
+
+      const updatedCard = newLists
+        .flatMap((l) => l.cards)
+        .find((c) => c.id === cardId);
+
+      setSelectedCard(updatedCard);
+    } catch (err) {
+      console.error("Checklist add error", err);
+    }
   };
 
-  const toggleChecklist = (cardId, itemId) => {
-    const newLists = lists.map((list) => ({
-      ...list,
-      cards: list.cards.map((card) =>
-        card.id === cardId
-          ? {
-              ...card,
-              checklist: card.checklist.map((item) =>
-                item.id === itemId ? { ...item, done: !item.done } : item,
-              ),
-            }
-          : card,
-      ),
-    }));
+  const toggleChecklist = async (cardId, itemId) => {
+    try {
+      const res = await axios.put(`${BASE_URL}/checklist/${itemId}`);
 
-    updateLists(newLists);
+      const updatedItem = res.data;
 
-    const updatedCard = newLists
-      .flatMap((l) => l.cards)
-      .find((c) => c.id === cardId);
+      const newLists = lists.map((list) => ({
+        ...list,
+        cards: list.cards.map((card) =>
+          card.id === cardId
+            ? {
+                ...card,
+                checklist: card.checklist.map((item) =>
+                  item.id === itemId ? updatedItem : item,
+                ),
+              }
+            : card,
+        ),
+      }));
 
-    setSelectedCard(updatedCard);
+      updateLists(newLists);
+
+      const updatedCard = newLists
+        .flatMap((l) => l.cards)
+        .find((c) => c.id === cardId);
+
+      setSelectedCard(updatedCard);
+    } catch (err) {
+      console.error("Checklist toggle error", err);
+    }
   };
 
   return (

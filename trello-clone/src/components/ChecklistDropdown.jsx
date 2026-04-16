@@ -11,7 +11,7 @@ const ChecklistDropdown = ({
   return (
     <div
       className="absolute top-14 left-36 bg-[#334155] p-3 rounded w-64 z-50"
-      onClick={(e) => e.stopPropagation()} // 🔥 IMPORTANT
+      onClick={(e) => e.stopPropagation()}
     >
       {/* HEADER */}
       <div className="flex justify-between mb-2">
@@ -31,18 +31,7 @@ const ChecklistDropdown = ({
           onClick={() => {
             if (!newItem.trim()) return;
 
-            addChecklistItem(card.id, newItem);
-
-            // 🔥 LOCAL UI UPDATE (IMPORTANT)
-            card.checklist = [
-              ...(card.checklist || []),
-              {
-                id: "item-" + Date.now(),
-                text: newItem,
-                done: false,
-              },
-            ];
-
+            addChecklistItem(card.id, newItem); // ✅ ONLY THIS
             setNewItem("");
           }}
           className="bg-blue-500 px-2 rounded text-sm hover:bg-blue-600"
@@ -57,36 +46,33 @@ const ChecklistDropdown = ({
           <div
             key={item.id}
             className="flex gap-2 items-center text-sm"
-            onClick={(e) => e.stopPropagation()} // 🔥 prevent close
+            onClick={(e) => e.stopPropagation()}
           >
             <input
               type="checkbox"
-              checked={item.done}
-              onChange={() => {
-                toggleChecklist(card.id, item.id);
-
-                // 🔥 LOCAL UI UPDATE (IMPORTANT)
-                card.checklist = card.checklist.map((i) =>
-                  i.id === item.id ? { ...i, done: !i.done } : i,
-                );
-              }}
+              checked={item.is_done}
+              onChange={() => toggleChecklist(card.id, item.id)}
               onClick={(e) => e.stopPropagation()}
               className="cursor-pointer"
             />
-            <span className={item.done ? "line-through text-gray-400" : ""}>
+            <span
+              className={
+                item.is_done ? "line-through text-gray-400" : ""
+              }
+            >
               {item.text}
             </span>
           </div>
         ))}
       </div>
 
-      {/* 🔥 PROGRESS (IMPORTANT ADD) */}
+      {/* PROGRESS */}
       {card.checklist?.length > 0 && (
         <div className="mt-2 text-xs text-gray-300">
           {Math.round(
-            (card.checklist.filter((i) => i.done).length /
+            (card.checklist.filter((i) => i.is_done).length /
               card.checklist.length) *
-              100,
+              100
           )}
           % completed
         </div>

@@ -45,10 +45,34 @@ const deleteCard = async (id) => {
   );
   return result;
 };
+const updateCardMembers = async (card_id, member_id) => {
+  // check if already exists
+  const exists = await pool.query(
+    "SELECT * FROM card_members WHERE card_id = $1 AND member_id = $2",
+    [card_id, member_id]
+  );
+
+  if (exists.rows.length > 0) {
+    // remove
+    await pool.query(
+      "DELETE FROM card_members WHERE card_id = $1 AND member_id = $2",
+      [card_id, member_id]
+    );
+    return { removed: true };
+  } else {
+    // add
+    await pool.query(
+      "INSERT INTO card_members (card_id, member_id) VALUES ($1, $2)",
+      [card_id, member_id]
+    );
+    return { added: true };
+  }
+};
 
 module.exports = {
   createCard,
   getCardsByList,
   updateCard,
   deleteCard,
+  updateCardMembers,
 };

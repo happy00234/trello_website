@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChecklistDropdown from "./ChecklistDropdown";
 import LabelDropdown from "./LabelDropdown";
 import DateDropdown from "./DateDropdown";
@@ -23,6 +23,10 @@ const CardModal = ({
 
   const [tempDate, setTempDate] = useState(card.dueDate || "");
   const [localCard, setLocalCard] = useState(card);
+  useEffect(() => {
+    setLocalCard(card);
+    setTempDate(card.dueDate || "");
+  }, [card]);
 
   return (
     <div
@@ -142,6 +146,8 @@ const CardModal = ({
             onClick={() =>
               updateCard(localCard.id, {
                 description: localCard.description,
+                due_date: localCard.dueDate,
+                label: localCard.label,
               })
             }
             className="bg-blue-500 px-3 py-1 rounded"
