@@ -4,6 +4,8 @@ const router = express.Router();
 const {
   createListHandler,
   getListsHandler,
+  deleteListHandler,
+  updateListHandler,
 } = require("../controllers/listController");
 
 router.post("/", createListHandler);
