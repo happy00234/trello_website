@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"; // 👈 ADD
+import { useState, useEffect, useRef } from "react"; 
 
 const LabelDropdown = ({
   card,
@@ -16,7 +16,7 @@ const LabelDropdown = ({
 
   const [tempLabel, setTempLabel] = useState(card.label);
 
-  // 🔥 ADD THIS
+  
   const dropdownRef = useRef(null);
 
   const handleSelect = (color) => {
@@ -31,7 +31,7 @@ const LabelDropdown = ({
     closeDropdown();
   };
 
-  // 🔥 ADD THIS
+  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -51,7 +51,7 @@ const LabelDropdown = ({
 
   return (
     <div
-      ref={dropdownRef} // 👈 ADD THIS
+      ref={dropdownRef} 
       className="absolute top-14 left-0 bg-[#334155] p-3 rounded w-48 z-50"
       onClick={(e) => e.stopPropagation()}
     >

@@ -31,26 +31,25 @@ const Card = ({ card, onClick }) => {
       onClick={() => onClick(card)}
       className="bg-[#334155] hover:bg-[#475569] p-2 rounded-md cursor-pointer transition-all duration-200 active:scale-95"
     >
-      {/* 🔥 LABEL */}
       {card.label && (
         <div className={`w-10 h-1 mb-2 rounded ${card.label}`}></div>
       )}
 
-      {/* 🔹 TITLE */}
+      
       <div className="text-sm text-white font-medium">
         {card.title}
       </div>
 
-      {/* 🔥 BOTTOM ROW (ALL IN ONE LINE) */}
+      
       <div className="flex items-center justify-between mt-2 text-xs text-gray-300">
 
-        {/* LEFT SIDE */}
+        
         <div className="flex items-center gap-2">
 
-          {/* description icon */}
+          
           {card.description && <span>≡</span>}
 
-          {/* checklist */}
+          
           {total > 0 && (
             <span>
               ☑ {completed}/{total}
@@ -58,10 +57,10 @@ const Card = ({ card, onClick }) => {
           )}
         </div>
 
-        {/* RIGHT SIDE */}
+        
         <div className="flex items-center gap-2">
 
-          {/* members */}
+          
           {card.members?.length > 0 && (
             <div className="flex">
               {card.members.map((m, index) => (
@@ -76,7 +75,7 @@ const Card = ({ card, onClick }) => {
             </div>
           )}
 
-          {/* date */}
+          
           {card.dueDate && (
             <span
               className={

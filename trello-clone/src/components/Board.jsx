@@ -65,17 +65,46 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
           try {
             const cardRes = await axios.get(`${BASE_URL}/cards/${list.id}`);
 
+            const cardsWithDetails = await Promise.all(
+              (cardRes.data || []).map(async (card) => {
+                try {
+                  // 🔥 FETCH CHECKLIST
+                  const checklistRes = await axios.get(
+                    `${BASE_URL}/checklist/${card.id}`,
+                  );
+
+                  return {
+                    ...card,
+                    dueDate: card.due_date, // ✅ mapping fix
+                    label: card.label,
+
+                    // ✅ SIMPLE MEMBERS FIX (no bug)
+                    members: card.members || [],
+
+                    // 🔥 MAIN FIX
+                    checklist: checklistRes.data || [],
+                  };
+                } catch (err) {
+                  console.error("Checklist fetch error", err);
+
+                  return {
+                    ...card,
+                    dueDate: card.due_date,
+                    label: card.label,
+                    members: card.members || [],
+                    checklist: [],
+                  };
+                }
+              }),
+            );
+
             return {
               ...list,
-              cards: (cardRes.data || []).map((card) => ({
-                ...card,
-                dueDate: card.due_date, // ✅ already correct
-                label: card.label, // 🔥 THIS WAS MISSING
-                members: card.members || [],
-              })),
+              cards: cardsWithDetails,
             };
           } catch (err) {
             console.error("Error fetching cards for list", list.id, err);
+
             return {
               ...list,
               cards: [],

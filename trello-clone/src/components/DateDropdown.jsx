@@ -9,15 +9,15 @@ const DateDropdown = ({
   return (
     <div
       className="absolute top-14 left-72 bg-[#334155] p-3 rounded w-56 z-50"
-      onClick={(e) => e.stopPropagation()} // 🔥 IMPORTANT
+      onClick={(e) => e.stopPropagation()} 
     >
-      {/* HEADER */}
+      
       <div className="flex justify-between mb-2">
         <span className="text-xs">Dates</span>
         <button onClick={closeDropdown}>✕</button>
       </div>
 
-      {/* DATE INPUT */}
+      
       <input
         type="date"
         value={tempDate}
@@ -25,12 +25,12 @@ const DateDropdown = ({
         className="w-full p-2 rounded bg-[#1e293b] outline-none"
       />
 
-      {/* SAVE BUTTON */}
+      
       <button
         onClick={() => {
           updateCard(card.id, { dueDate: tempDate });
 
-          // 🔥 LOCAL UI UPDATE (IMPORTANT)
+          
           setLocalCard({ ...card, dueDate: tempDate });
 
           closeDropdown();

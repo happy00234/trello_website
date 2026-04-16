@@ -23,7 +23,7 @@ const List = ({ list, addCard, updateCard, updateList, deleteList, setSelectedCa
   const [editingTitle, setEditingTitle] = useState(false);
   const [newTitle, setNewTitle] = useState(list.title);
 
-  // ✅ ONLY CHANGE
+ 
   const handleAdd = async () => {
     if (!title.trim()) return;
 
@@ -50,7 +50,7 @@ const List = ({ list, addCard, updateCard, updateList, deleteList, setSelectedCa
   return (
     <div ref={setNodeRef} className="bg-[#1e293b] shadow-lg border border-white/10 text-white w-64 min-w-[256px] flex-shrink-0 p-3 rounded-xl h-[320px] flex flex-col relative">
 
-      {/* HEADER */}
+      
       <div className="flex justify-between items-center mb-3">
         {editingTitle ? (
           <input
@@ -81,7 +81,7 @@ const List = ({ list, addCard, updateCard, updateList, deleteList, setSelectedCa
         </div>
       </div>
 
-      {/* CARDS */}
+      
       <SortableContext items={list.cards.map((card) => card.id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col gap-2 overflow-y-auto flex-1 pr-1">
           {list.cards.map((card) => (
@@ -95,7 +95,7 @@ const List = ({ list, addCard, updateCard, updateList, deleteList, setSelectedCa
         </div>
       </SortableContext>
 
-      {/* ADD CARD */}
+      
       {showInput ? (
         <div className="mt-2">
           <input

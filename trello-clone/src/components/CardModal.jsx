@@ -44,7 +44,7 @@ const CardModal = ({
 
         <h2 className="text-lg font-semibold mb-4">{localCard.title}</h2>
 
-        {/* 🔥 BUTTONS */}
+        
         <div className="flex gap-2 mb-4 relative">
           <button
             onClick={() =>
@@ -85,7 +85,7 @@ const CardModal = ({
           </button>
         </div>
 
-        {/* 🔥 LABEL */}
+        
         {activeDropdown === "labels" && (
           <LabelDropdown
             card={localCard}
@@ -95,7 +95,7 @@ const CardModal = ({
           />
         )}
 
-        {/* 🔥 CHECKLIST */}
+        
         {activeDropdown === "checklist" && (
           <ChecklistDropdown
             card={localCard}
@@ -105,7 +105,7 @@ const CardModal = ({
           />
         )}
 
-        {/* 🔥 DATES */}
+        
         {activeDropdown === "dates" && (
           <DateDropdown
             card={localCard}
@@ -117,7 +117,7 @@ const CardModal = ({
           />
         )}
 
-        {/* 🔥 MEMBERS */}
+        
         {activeDropdown === "members" && (
           <MembersDropdown
             card={localCard}
@@ -128,7 +128,7 @@ const CardModal = ({
           />
         )}
 
-        {/* 🔥 DESCRIPTION */}
+        
         <textarea
           value={localCard.description || ""}
           onChange={(e) =>
@@ -140,7 +140,7 @@ const CardModal = ({
           className="w-full p-2 bg-[#334155] rounded mt-4"
         />
 
-        {/* SAVE + DELETE */}
+        
         <div className="flex justify-between mt-2">
           <button
             onClick={() =>

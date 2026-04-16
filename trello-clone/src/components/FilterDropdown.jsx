@@ -7,9 +7,9 @@ const FilterDropdown = ({
     <div
       ref={filterRef}
       className="absolute right-0 top-full mt-3 bg-[#1e293b] p-4 rounded-xl w-64 z-50 shadow-xl border border-white/10 space-y-4"
-      onClick={(e) => e.stopPropagation()} // 🔥 IMPORTANT
+      onClick={(e) => e.stopPropagation()} 
     >
-      {/* 🔴 LABELS */}
+      
       <div>
         <p className="text-xs text-gray-400 mb-2">Labels</p>
         <div className="flex gap-2">
@@ -37,7 +37,7 @@ const FilterDropdown = ({
         </div>
       </div>
 
-      {/* 👥 MEMBERS */}
+      
       <div>
         <p className="text-xs text-gray-400 mb-2">Members</p>
         <div className="flex gap-2">
@@ -62,7 +62,7 @@ const FilterDropdown = ({
         </div>
       </div>
 
-      {/* 📅 DATE */}
+      
       <div>
         <p className="text-xs text-gray-400 mb-2">Due Date</p>
         <div className="flex gap-2">
@@ -90,7 +90,7 @@ const FilterDropdown = ({
         </div>
       </div>
 
-      {/* 🔄 CLEAR */}
+      
       <button
         onClick={() =>
           setFilters({ label: null, member: null, due: null })

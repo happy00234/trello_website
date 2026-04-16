@@ -46,7 +46,7 @@ const Header = ({
 
   return (
     <div className="relative z-50 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg px-4 py-2 flex items-center justify-between text-white rounded-lg mb-4">
-      {/* LEFT */}
+      
       <div className="relative">
         <h1
           onClick={() => setShowDropdown(!showDropdown)}
@@ -70,7 +70,7 @@ const Header = ({
               </div>
             ))}
 
-            {/* CREATE BOARD */}
+            
             <div className="mt-2">
               <input
                 placeholder="New board..."
@@ -99,7 +99,7 @@ const Header = ({
         )}
       </div>
 
-      {/* CENTER */}
+      
       <input
         type="text"
         value={search}
@@ -108,7 +108,7 @@ const Header = ({
         className="px-3 py-1 rounded-md bg-white/10 border border-white/20 outline-none w-80"
       />
 
-      {/* RIGHT */}
+      
       <div className="relative flex items-center gap-3">
         <button
           onClick={() => setShowFilter(!showFilter)}
@@ -120,7 +120,7 @@ const Header = ({
           <FilterDropdown
             filters={filters}
             setFilters={setFilters}
-            filterRef={filterRef} // 🔥 IMPORTANT
+            filterRef={filterRef} 
           />
         )}
 

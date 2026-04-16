@@ -8,15 +8,15 @@ const MembersDropdown = ({
   return (
     <div
       className="absolute top-14 left-60 bg-[#334155] p-3 rounded w-52 z-50"
-      onClick={(e) => e.stopPropagation()} // 🔥 IMPORTANT
+      onClick={(e) => e.stopPropagation()} 
     >
-      {/* HEADER */}
+      
       <div className="flex justify-between mb-2">
         <span className="text-xs">Members</span>
         <button onClick={closeDropdown}>✕</button>
       </div>
 
-      {/* MEMBERS LIST */}
+      
       {membersList.map((member) => {
         const isSelected = card.members?.some(
           (m) => m.id === member.id
@@ -28,7 +28,7 @@ const MembersDropdown = ({
             onClick={() => {
               toggleMember(card.id, member);
 
-              // 🔥 LOCAL UI UPDATE (IMPORTANT)
+              
               const exists = card.members?.find(
                 (m) => m.id === member.id
               );
