@@ -13,7 +13,6 @@ import {
   DragOverlay,
 } from "@dnd-kit/core";
 
-
 import { arrayMove } from "@dnd-kit/sortable";
 const membersList = [
   { id: 1, name: "Happy", avatar: "H" },
@@ -317,17 +316,19 @@ const Board = ({ search, boards, setBoards, activeBoardId, filters }) => {
 
     updateLists(newLists);
 
-// 🔥 BACKEND SYNC (ONLY FOR DRAG)
-try {
-  const movedCard =
-    newLists[destination.listIndex].cards[destination.cardIndex];
+    try {
+      const movedCardId = active.id;
 
-  await axios.put(`${BASE_URL}/cards/${movedCard.id}/move`, {
-    list_id: newLists[destination.listIndex].id,
-  });
-} catch (err) {
-  console.error("Error moving card", err);
-}
+      const newListId = parseInt(over.id.toString().replace("list-", ""));
+
+      if (!movedCardId || !newListId) return;
+
+      await axios.put(`${BASE_URL}/cards/${movedCardId}/move`, {
+        list_id: newListId,
+      });
+    } catch (err) {
+      console.error("Error moving card", err);
+    }
   };
 
   const addChecklistItem = async (cardId, text) => {
